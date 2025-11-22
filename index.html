@@ -8,6 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
 <style>
 :root{
   --bg:#0b0b0d;
@@ -142,7 +145,7 @@ input, select{
   background:transparent;color:#fff;outline:none;
 }
 
-/* book button */
+/* botão de agendamento */
 .book-btn{
   margin-top:12px;padding:12px;border-radius:12px;border:none;cursor:pointer;
   background: linear-gradient(90deg,var(--accent-1),var(--accent-2));
@@ -150,6 +153,26 @@ input, select{
   box-shadow: 0 10px 30px rgba(255,79,154,0.12);
 }
 .book-btn:hover{ transform:translateY(-2px)}
+
+/* botão voltar (painel admin) */
+.btn-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 20px;
+  transition: all 0.2s;
+}
+.btn-voltar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  background: rgba(255,255,255,0.12);
+}
 
 /* floating whatsapp */
 .wpp{
@@ -159,7 +182,7 @@ input, select{
   text-decoration:none;
 }
 
-/* admin small link */
+/* admin link */
 .admin-link{font-size:13px;color:var(--muted);text-decoration:none;margin-left:8px}
 .admin-link:hover{color:#fff}
 
@@ -264,7 +287,7 @@ input, select{
         <input id="telefone" placeholder="(DDD) 9 0000-0000">
 
         <label for="data">Data</label>
-        <input id="data" type="date">
+        <input id="data" type="text" placeholder="Selecione a data">
 
         <label for="hora">Hora</label>
         <select id="hora">
@@ -299,9 +322,19 @@ input, select{
 
 <a class="wpp" href="https://wa.me/55219887976236" target="_blank" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
 
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <script>
 // carregar ano
 document.getElementById('ano').textContent = new Date().getFullYear();
+
+// inicializar flatpickr
+flatpickr("#data", {
+    dateFormat: "d/m/Y",
+    minDate: "today",
+    disableMobile: false
+});
 
 // enviar agendamento
 document.getElementById('btnEnviar').addEventListener('click', function(){
@@ -319,7 +352,10 @@ document.getElementById('btnEnviar').addEventListener('click', function(){
   const msg = `Olá! Quero agendar:%0ANome: ${encodeURIComponent(nome)}%0ATelefone: ${encodeURIComponent(tel)}%0AData: ${data}%0AHora: ${hora}`;
   window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
   alert('Agendamento enviado! Obrigada 😊');
-  document.getElementById('nome').value=''; document.getElementById('telefone').value=''; document.getElementById('data').value=''; document.getElementById('hora').value='';
+  document.getElementById('nome').value=''; 
+  document.getElementById('telefone').value=''; 
+  document.getElementById('data').value=''; 
+  document.getElementById('hora').value='';
 });
 </script>
 </body>

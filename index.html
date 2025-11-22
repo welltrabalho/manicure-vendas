@@ -145,7 +145,10 @@ input, select{
   background:transparent;color:#fff;outline:none;
 }
 
-/* botão de agendamento */
+/* Flatpickr custom */
+.flatpickr-calendar{background:#0b0b0d;color:#fff;border-radius:10px;border:1px solid rgba(255,255,255,0.1);}
+
+/* book button */
 .book-btn{
   margin-top:12px;padding:12px;border-radius:12px;border:none;cursor:pointer;
   background: linear-gradient(90deg,var(--accent-1),var(--accent-2));
@@ -153,26 +156,6 @@ input, select{
   box-shadow: 0 10px 30px rgba(255,79,154,0.12);
 }
 .book-btn:hover{ transform:translateY(-2px)}
-
-/* botão voltar (painel admin) */
-.btn-voltar {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
-  color: #fff;
-  font-weight: 600;
-  border: 1px solid rgba(255,255,255,0.1);
-  margin-bottom: 20px;
-  transition: all 0.2s;
-}
-.btn-voltar:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-  background: rgba(255,255,255,0.12);
-}
 
 /* floating whatsapp */
 .wpp{
@@ -182,15 +165,9 @@ input, select{
   text-decoration:none;
 }
 
-/* admin link */
+/* admin small link */
 .admin-link{font-size:13px;color:var(--muted);text-decoration:none;margin-left:8px}
 .admin-link:hover{color:#fff}
-
-/* table in modal/panel */
-.table{
-  width:100%; border-collapse:collapse;margin-top:10px;color:var(--muted);
-}
-.table th, .table td{padding:8px;border-bottom:1px dashed rgba(255,255,255,0.03);font-size:13px;text-align:left}
 
 /* footer */
 .footer{
@@ -235,14 +212,14 @@ input, select{
             <p>Traga suas unhas para o próximo nível — design, alongamento e manicure com acabamento profissional.</p>
           </div>
           <div style="text-align:right;">
-            <a class="btn-primary" href="#agendar">Agenda agora</a>
+            <a class="btn-primary" href="#agendar">Agendar agora</a>
           </div>
         </div>
 
         <div id="galeria" class="panel" style="margin-bottom:12px;">
           <h3 style="margin:0 0 8px 0">Transformações recentes</h3>
           <div class="galeria" id="galeriaImgs">
-            <img src="imagens/minha.jpg" alt="well">
+            <img src="https://i.imgur.com/8MZgRXt.jpeg" alt="unha1">
             <img src="https://i.imgur.com/VgQA0Jv.jpeg" alt="unha2">
             <img src="https://i.imgur.com/tbZfDoF.jpeg" alt="unha3">
             <img src="https://i.imgur.com/6x3Dg4s.jpeg" alt="unha4">
@@ -287,7 +264,7 @@ input, select{
         <input id="telefone" placeholder="(DDD) 9 0000-0000">
 
         <label for="data">Data</label>
-        <input id="data" type="text" placeholder="Selecione a data">
+        <input id="data" placeholder="Selecione a data">
 
         <label for="hora">Hora</label>
         <select id="hora">
@@ -329,11 +306,14 @@ input, select{
 // carregar ano
 document.getElementById('ano').textContent = new Date().getFullYear();
 
-// inicializar flatpickr
+// inicializar calendário
 flatpickr("#data", {
-    dateFormat: "d/m/Y",
-    minDate: "today",
-    disableMobile: false
+  dateFormat: "d/m/Y",
+  minDate: "today",
+  locale: {
+    weekdays: { shorthand: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'], longhand: ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'] },
+    months: { shorthand: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'], longhand: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dez'] }
+  }
 });
 
 // enviar agendamento
@@ -352,10 +332,7 @@ document.getElementById('btnEnviar').addEventListener('click', function(){
   const msg = `Olá! Quero agendar:%0ANome: ${encodeURIComponent(nome)}%0ATelefone: ${encodeURIComponent(tel)}%0AData: ${data}%0AHora: ${hora}`;
   window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
   alert('Agendamento enviado! Obrigada 😊');
-  document.getElementById('nome').value=''; 
-  document.getElementById('telefone').value=''; 
-  document.getElementById('data').value=''; 
-  document.getElementById('hora').value='';
+  document.getElementById('nome').value=''; document.getElementById('telefone').value=''; document.getElementById('data').value=''; document.getElementById('hora').value='';
 });
 </script>
 </body>

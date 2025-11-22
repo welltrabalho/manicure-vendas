@@ -43,6 +43,11 @@ html,body{height:100%;margin:0;font-family:"Inter",system-ui,Arial,sans-serif;ba
   margin:36px auto;
   padding:28px;
 }
+/* aviso quando usando produtos salvos localmente */
+.local-notice{background:linear-gradient(90deg,#3b3054,#5b2b6a);padding:10px;border-radius:10px;margin-bottom:12px;color:#fff;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.local-notice .txt{font-size:13px}
+.local-notice .actions{display:flex;gap:8px}
+.local-notice .btn-mini{background:transparent;border:1px solid rgba(255,255,255,0.12);color:#fff;padding:6px 8px;border-radius:8px;cursor:pointer}
 
 /* header */
 .header{
@@ -201,6 +206,13 @@ input, select{
 <div class="hero-bg" aria-hidden="true"></div>
 
 <div class="container">
+  <div id="localNotice" class="local-notice" style="display:none">
+    <div class="txt">Você está vendo a versão de teste salva no painel (local).</div>
+    <div class="actions">
+      <button id="btnViewPublic" class="btn-mini">Ver versão pública</button>
+      <button id="btnRemoveLocal" class="btn-mini">Remover versão local</button>
+    </div>
+  </div>
 
   <header class="header">
     <div class="brand">
@@ -385,6 +397,42 @@ function atualizarHorariosDisponiveis(dataSelecionada) {
   }
 }
 
+  // Mostrar aviso quando estiver usando dados locais do admin
+  function checkLocalProductsNotice() {
+    const notice = document.getElementById('localNotice');
+    const btnViewPublic = document.getElementById('btnViewPublic');
+    const btnRemoveLocal = document.getElementById('btnRemoveLocal');
+    const hasLocal = !!localStorage.getItem('produtos_admin');
+    const ignoreLocal = sessionStorage.getItem('ignore_local_produtos') === '1';
+    if (!notice) return;
+    if (hasLocal) {
+      notice.style.display = 'flex';
+      // ajustar texto dependendo se o usuário escolheu ver a versão pública temporariamente
+      const txt = notice.querySelector('.txt');
+      if(txt) txt.textContent = ignoreLocal ? 'Visualizando a versão pública temporariamente (há uma versão local salva).' : 'Você está vendo a versão de teste salva no painel (local).';
+    } else {
+      notice.style.display = 'none';
+    }
+
+    if (btnViewPublic) {
+      btnViewPublic.onclick = () => {
+        // Temporarily ignore localStorage and reload forcing public JSON
+        sessionStorage.setItem('ignore_local_produtos', '1');
+        location.reload();
+      };
+    }
+
+    if (btnRemoveLocal) {
+      btnRemoveLocal.onclick = () => {
+        if (confirm('Remover dados locais de produtos? Esta ação irá restaurar a versão pública ao recarregar a página.')) {
+          localStorage.removeItem('produtos_admin');
+          sessionStorage.removeItem('ignore_local_produtos');
+          location.reload();
+        }
+      };
+    }
+  }
+
 // verificar se horário está disponível
 function horarioDisponivel(data, hora) {
   const lista = JSON.parse(localStorage.getItem('agendamentos')||'[]');
@@ -550,15 +598,37 @@ function renderizarPagina(){
   renderizarPaginacao(produtos.length);
 }
 
-// buscar produtos
-fetch('produtos.json').then(r=>r.json()).then(data=>{
-  produtos = data;
-  paginaAtual = 1;
-  renderizarPagina();
-}).catch(err=>{
-  produtosContainer.innerHTML = '<div style="color:var(--muted);grid-column:1/-1;text-align:center">Erro ao carregar produtos.</div>';
-  console.error('Erro fetch produtos:', err);
-});
+// buscar produtos: primeiro verifica se existe versão salva no localStorage (admin), senão faz fetch do arquivo
+function carregarProdutos(){
+  const saved = localStorage.getItem('produtos_admin');
+  const ignoreLocal = sessionStorage.getItem('ignore_local_produtos') === '1';
+  if(saved){
+    try{
+      if(!ignoreLocal){
+        produtos = JSON.parse(saved);
+        paginaAtual = 1;
+        renderizarPagina();
+        console.info('Produtos carregados de localStorage (produtos_admin)');
+        checkLocalProductsNotice();
+        return;
+      }
+    }catch(e){ console.warn('Erro parse produtos_admin, carregando produtos.json', e); }
+  }
+
+  fetch('produtos.json').then(r=>r.json()).then(data=>{
+    produtos = data;
+    paginaAtual = 1;
+    renderizarPagina();
+    checkLocalProductsNotice();
+  }).catch(err=>{
+    produtosContainer.innerHTML = '<div style="color:var(--muted);grid-column:1/-1;text-align:center">Erro ao carregar produtos.</div>';
+    console.error('Erro fetch produtos:', err);
+  });
+}
+
+carregarProdutos();
+// atualizar estado do aviso/local notice
+checkLocalProductsNotice();
 
 // IntersectionObserver based lazy load
 let _lazyObserver = null;

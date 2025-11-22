@@ -273,6 +273,7 @@ input, select{
         </select>
 
         <button class="book-btn" id="btnEnviar">Enviar para WhatsApp</button>
+        <div id="avisoReserva" role="status" aria-live="polite" style="margin-top:10px;display:none;padding:10px;border-radius:8px;background:rgba(255,79,154,0.08);color:#ffb6d6;font-size:13px;border:1px solid rgba(255,79,154,0.12)"></div>
 
         <div style="margin-top:12px;font-size:13px;color:var(--muted)">
           <span>Admin:</span>
@@ -338,6 +339,14 @@ function atualizarHorariosDisponiveis(dataSelecionada) {
       opcao.textContent = opcao.value;
     }
   });
+
+  // atualizar aviso caso a opção selecionada esteja ocupada
+  const horaSelecionada = selectHora.value;
+  if(horaSelecionada && horariosOcupados.includes(horaSelecionada)) {
+    mostrarAviso('⚠️ Este horário já está ocupado. Escolha outro horário.');
+  } else {
+    esconderAviso();
+  }
 }
 
 // verificar se horário está disponível
@@ -345,6 +354,30 @@ function horarioDisponivel(data, hora) {
   const lista = JSON.parse(localStorage.getItem('agendamentos')||'[]');
   return !lista.some(a => a.data === data && a.hora === hora);
 }
+
+// mostrar / esconder aviso inline
+function mostrarAviso(msg) {
+  const el = document.getElementById('avisoReserva');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function esconderAviso(){
+  const el = document.getElementById('avisoReserva');
+  el.textContent = '';
+  el.style.display = 'none';
+}
+
+// verificar aviso quando usuário muda a hora
+document.getElementById('hora').addEventListener('change', function(){
+  const data = document.getElementById('data').value;
+  const hora = this.value;
+  if(!data || !hora){ esconderAviso(); return; }
+  if(!horarioDisponivel(data, hora)) {
+    mostrarAviso('⚠️ Este horário já está ocupado. Escolha outro horário.');
+  } else {
+    esconderAviso();
+  }
+});
 
 // enviar agendamento
 document.getElementById('btnEnviar').addEventListener('click', function(){

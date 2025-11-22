@@ -313,8 +313,38 @@ flatpickr("#data", {
   locale: {
     weekdays: { shorthand: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'], longhand: ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'] },
     months: { shorthand: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'], longhand: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dez'] }
+  },
+  onChange: function(selectedDates, dateStr) {
+    atualizarHorariosDisponiveis(dateStr);
   }
 });
+
+// atualizar horários disponíveis baseado na data selecionada
+function atualizarHorariosDisponiveis(dataSelecionada) {
+  const lista = JSON.parse(localStorage.getItem('agendamentos')||'[]');
+  const horariosOcupados = lista
+    .filter(a => a.data === dataSelecionada)
+    .map(a => a.hora);
+  
+  const selectHora = document.getElementById('hora');
+  const opcoes = selectHora.querySelectorAll('option');
+  
+  opcoes.forEach(opcao => {
+    if(opcao.value && horariosOcupados.includes(opcao.value)) {
+      opcao.disabled = true;
+      opcao.textContent = opcao.value + ' (Ocupado)';
+    } else if(opcao.value) {
+      opcao.disabled = false;
+      opcao.textContent = opcao.value;
+    }
+  });
+}
+
+// verificar se horário está disponível
+function horarioDisponivel(data, hora) {
+  const lista = JSON.parse(localStorage.getItem('agendamentos')||'[]');
+  return !lista.some(a => a.data === data && a.hora === hora);
+}
 
 // enviar agendamento
 document.getElementById('btnEnviar').addEventListener('click', function(){
@@ -323,6 +353,12 @@ document.getElementById('btnEnviar').addEventListener('click', function(){
   const data = document.getElementById('data').value;
   const hora = document.getElementById('hora').value;
   if(!nome || !tel || !data || !hora){ alert('Preencha todos os campos'); return; }
+
+  // verificar se o horário está disponível
+  if(!horarioDisponivel(data, hora)) {
+    alert('⚠️ Este horário já está ocupado! Por favor, escolha outro horário.');
+    return;
+  }
 
   const lista = JSON.parse(localStorage.getItem('agendamentos')||'[]');
   lista.push({nome,tel,data,hora, criado: new Date().toISOString()});

@@ -93,13 +93,13 @@ button{padding:8px 10px;border-radius:8px;border:0;cursor:pointer}
     adminApp.style.display = 'block';
     setPassDiv.style.display = 'none';
     loginDiv.style.display = 'none';
-    sessionStorage.setItem('admin_produtos_auth','1');
+    localStorage.setItem('admin_produtos_auth','1');
     initAdmin();
   }
   function showLogin(){ adminApp.style.display='none'; loginDiv.style.display='block'; setPassDiv.style.display='none'; }
   function showSetPass(){ adminApp.style.display='none'; setPassDiv.style.display='block'; loginDiv.style.display='none'; }
 
-  if(sessionStorage.getItem('admin_produtos_auth')==='1'){
+  if(localStorage.getItem('admin_produtos_auth')==='1'){
     showAdmin();
   } else if(!storedHash){
     showSetPass();
@@ -129,7 +129,7 @@ button{padding:8px 10px;border-radius:8px;border:0;cursor:pointer}
   });
 
   btnLogout.addEventListener('click', ()=>{
-    sessionStorage.removeItem('admin_produtos_auth');
+    localStorage.removeItem('admin_produtos_auth');
     adminApp.style.display='none';
     showLogin();
   });
@@ -140,7 +140,7 @@ button{padding:8px 10px;border-radius:8px;border:0;cursor:pointer}
     btnResetPass.addEventListener('click', ()=>{
       if(!confirm('Deseja realmente redefinir a senha de administrador? Isso removerá a senha atual.')) return;
       localStorage.removeItem('admin_produtos_hash');
-      sessionStorage.removeItem('admin_produtos_auth');
+      localStorage.removeItem('admin_produtos_auth');
       alert('Senha removida. Você será direcionado para definir uma nova senha.');
       showSetPass();
     });
@@ -163,7 +163,8 @@ button{padding:8px 10px;border-radius:8px;border:0;cursor:pointer}
               <div style="height:8px"></div>
               <input data-i="${i}" class="inp-preco" value="${(p.preco||'').replace(/"/g,'&quot;')}" placeholder="Preço" />
               <div style="height:8px"></div>
-              <input data-i="${i}" class="inp-img" value="${(p.img||'').replace(/"/g,'&quot;')}" placeholder="Caminho da imagem" />
+              <input data-i="${i}" class="inp-img" value="${(p.img||'').replace(/\"/g,'&quot;')}" placeholder="Caminho da imagem" />
+              <div style="margin-top:6px;font-size:13px;color:#ffb6d6" id="imgStatus-${i}"></div>
               <div style="height:8px"></div>
               <textarea data-i="${i}" class="inp-desc" placeholder="Descrição">${(p.descricao||'').replace(/</g,'&lt;')}</textarea>
             </div>
@@ -180,9 +181,56 @@ button{padding:8px 10px;border-radius:8px;border:0;cursor:pointer}
     function attachListHandlers(){
       document.querySelectorAll('.inp-nome').forEach(inp=> inp.addEventListener('input', function(){ produtos[this.dataset.i].nome = this.value; }));
       document.querySelectorAll('.inp-preco').forEach(inp=> inp.addEventListener('input', function(){ produtos[this.dataset.i].preco = this.value; }));
+      // when image path changes, update the model, preview and validate existence
       document.querySelectorAll('.inp-img').forEach(inp=> inp.addEventListener('input', function(){ produtos[this.dataset.i].img = this.value; renderList(); }));
+      document.querySelectorAll('.inp-img').forEach(inp=> inp.addEventListener('blur', function(){
+        const idx = Number(this.dataset.i);
+        const url = this.value.trim();
+        showImageStatus(idx, 'Verificando...');
+        if(!url){ showImageStatus(idx, 'Nenhum caminho informado'); return; }
+        imageExists(url).then(ok=>{
+          if(ok) showImageStatus(idx, 'Imagem encontrada ✓', true);
+          else showImageStatus(idx, 'Imagem não encontrada');
+        });
+      }));
       document.querySelectorAll('.inp-desc').forEach(inp=> inp.addEventListener('input', function(){ produtos[this.dataset.i].descricao = this.value; }));
       document.querySelectorAll('.btn-remove').forEach(btn=> btn.addEventListener('click', function(){ produtos.splice(Number(this.dataset.i),1); renderList(); }));
+    }
+
+    // helper to check if image exists by trying to load it
+    function imageExists(url){
+      return new Promise(resolve=>{
+        try{
+          const img = new Image();
+          img.onload = ()=> resolve(true);
+          img.onerror = ()=> resolve(false);
+          img.src = url;
+        }catch(e){ resolve(false); }
+      });
+    }
+
+    function showImageStatus(i, msg, ok){
+      const el = document.getElementById('imgStatus-'+i);
+      if(!el) return;
+      el.textContent = msg;
+      el.style.color = ok ? '#8ef5c1' : '#ffb6d6';
+    }
+
+    // validate all products: name, price, image existence
+    async function validateAllProducts(){
+      const errors = [];
+      for(let i=0;i<produtos.length;i++){
+        const p = produtos[i];
+        if(!p.nome || !p.nome.trim()) errors.push(`Item ${i+1}: nome vazio`);
+        if(!p.preco || !p.preco.trim()) errors.push(`Item ${i+1}: preço vazio`);
+        if(!p.img || !p.img.trim()) { errors.push(`Item ${i+1}: caminho da imagem vazio`); showImageStatus(i,'Nenhum caminho informado'); continue; }
+        // check image
+        // eslint-disable-next-line no-await-in-loop
+        const ok = await imageExists(p.img);
+        if(!ok) { errors.push(`Item ${i+1}: imagem não encontrada em "${p.img}"`); showImageStatus(i,'Imagem não encontrada'); }
+        else showImageStatus(i,'Imagem encontrada ✓', true);
+      }
+      return errors;
     }
 
     document.getElementById('btnNew').addEventListener('click', ()=>{ produtos.push({id: Date.now(), nome:'', preco:'', img:'', descricao:''}); renderList(); });
@@ -192,14 +240,21 @@ button{padding:8px 10px;border-radius:8px;border:0;cursor:pointer}
     });
 
     document.getElementById('btnSaveLocal').addEventListener('click', ()=>{
-      localStorage.setItem('produtos_admin', JSON.stringify(produtos));
-      alert('Salvo em localStorage (chave: produtos_admin)');
+      // validate before saving
+      validateAllProducts().then(errs=>{
+        if(errs.length){ alert('Existem erros:\n' + errs.join('\n')); return; }
+        localStorage.setItem('produtos_admin', JSON.stringify(produtos));
+        alert('Salvo em localStorage (chave: produtos_admin)');
+      });
     });
 
     document.getElementById('btnDownload').addEventListener('click', ()=>{
-      const blob = new Blob([JSON.stringify(produtos, null, 2)], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'produtos.json'; a.click(); URL.revokeObjectURL(url);
+      validateAllProducts().then(errs=>{
+        if(errs.length){ alert('Existem erros:\n' + errs.join('\n')); return; }
+        const blob = new Blob([JSON.stringify(produtos, null, 2)], {type:'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'produtos.json'; a.click(); URL.revokeObjectURL(url);
+      });
     });
 
     // importar por input file

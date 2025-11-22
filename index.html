@@ -613,7 +613,7 @@ document.getElementById('btnEnviar').addEventListener('click', function(){
 (function(){
   try{
     const adminLink = document.getElementById('adminLink');
-    if(sessionStorage.getItem('admin_produtos_auth') === '1'){
+    if(localStorage.getItem('admin_produtos_auth') === '1'){
       adminLink.style.display = 'inline-block';
     } else {
       adminLink.style.display = 'none';

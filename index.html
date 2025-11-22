@@ -328,7 +328,7 @@ document.getElementById('btnEnviar').addEventListener('click', function(){
   lista.push({nome,tel,data,hora, criado: new Date().toISOString()});
   localStorage.setItem('agendamentos', JSON.stringify(lista));
 
-  const numero = '55219887976236';
+  const numero = '5521988797623';
   const msg = `Olá! Quero agendar:%0ANome: ${encodeURIComponent(nome)}%0ATelefone: ${encodeURIComponent(tel)}%0AData: ${data}%0AHora: ${hora}`;
   window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
   alert('Agendamento enviado! Obrigada 😊');

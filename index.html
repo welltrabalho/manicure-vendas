@@ -219,12 +219,12 @@ input, select{
         <div id="galeria" class="panel" style="margin-bottom:12px;">
           <h3 style="margin:0 0 8px 0">Transformações recentes</h3>
           <div class="galeria" id="galeriaImgs">
-            <img src="https://i.imgur.com/8MZgRXt.jpeg" alt="unha1">
-            <img src="https://i.imgur.com/VgQA0Jv.jpeg" alt="unha2">
-            <img src="https://i.imgur.com/tbZfDoF.jpeg" alt="unha3">
-            <img src="https://i.imgur.com/6x3Dg4s.jpeg" alt="unha4">
-            <img src="https://i.imgur.com/AbcXk1Y.jpeg" alt="unha5">
-            <img src="https://i.imgur.com/zkL2QyJ.jpeg" alt="unha6">
+            <img src="imagens/minha.jpg" alt="unha1">
+            <img src="imagens/roupas/01.jpeg" alt="unha2">
+            <img src="imagens/roupas/02.jpeg" alt="unha3">
+            <img src="imagens/roupas/03.jpeg" alt="unha4">
+            <img src="imagens/roupas/04.jpeg" alt="unha5">
+            <img src="imagens/roupas/05.jpeg" alt="unha6">
           </div>
         </div>
 
@@ -328,7 +328,7 @@ document.getElementById('btnEnviar').addEventListener('click', function(){
   lista.push({nome,tel,data,hora, criado: new Date().toISOString()});
   localStorage.setItem('agendamentos', JSON.stringify(lista));
 
-  const numero = '5521988797623';
+  const numero = '5521973792087';
   const msg = `Olá! Quero agendar:%0ANome: ${encodeURIComponent(nome)}%0ATelefone: ${encodeURIComponent(tel)}%0AData: ${data}%0AHora: ${hora}`;
   window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
   alert('Agendamento enviado! Obrigada 😊');

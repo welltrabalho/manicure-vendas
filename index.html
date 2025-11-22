@@ -132,6 +132,21 @@ html,body{height:100%;margin:0;font-family:"Inter",system-ui,Arial,sans-serif;ba
 .price h3{margin:0;font-size:14px}
 .price strong{display:block;margin-top:8px;font-size:18px;color:var(--accent-2)}
 
+/* loja / produtos */
+.loja-panel{margin-top:14px}
+.loja-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.produto{background:var(--card);border:1px solid rgba(255,255,255,0.03);padding:10px;border-radius:10px;text-align:left}
+.produto img{width:100%;height:160px;object-fit:cover;border-radius:8px}
+.produto .nome{margin-top:8px;font-weight:700;font-size:14px}
+.produto .preco{color:var(--accent-2);font-weight:700;margin-top:6px}
+.produto .acoes{display:flex;gap:8px;margin-top:10px}
+.produto .acoes .btn-prod{flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-weight:700}
+.btn-prod.quero{background:linear-gradient(90deg,var(--accent-1),var(--accent-2));color:#fff}
+.btn-prod.duvida{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+
+@media(max-width:980px){.loja-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.loja-grid{grid-template-columns:repeat(1,1fr)}.produto img{height:200px}}
+
 /* right column */
 .side{
   display:flex; flex-direction:column; gap:12px;
@@ -245,6 +260,43 @@ input, select{
               <h3>Alongamento</h3>
               <strong>R$ 150</strong>
               <div style="color:var(--muted);font-size:12px;margin-top:6px">Gel / Fibra</div>
+            </div>
+          </div>
+
+          <div id="loja" class="panel loja-panel">
+            <h3 style="margin:0 0 8px 0">Peças em destaque</h3>
+            <p style="color:var(--muted);margin:0 0 8px 0;font-size:13px">Confira nossas peças selecionadas — preços visíveis. Gostou ou tem dúvida? Fale conosco pelo WhatsApp.</p>
+
+            <div class="loja-grid">
+              <div class="produto">
+                <img src="imagens/roupas/01.jpeg" alt="Peça 1">
+                <div class="nome">Vestido Floral</div>
+                <div class="preco">R$ 129,90</div>
+                <div class="acoes">
+                  <button class="btn-prod quero" data-nome="Vestido Floral" data-preco="R$ 129,90" data-tipo="quero">Quero</button>
+                  <button class="btn-prod duvida" data-nome="Vestido Floral" data-preco="R$ 129,90" data-tipo="duvida">Dúvida</button>
+                </div>
+              </div>
+
+              <div class="produto">
+                <img src="imagens/roupas/02.jpeg" alt="Peça 2">
+                <div class="nome">Blusa Cropped</div>
+                <div class="preco">R$ 69,90</div>
+                <div class="acoes">
+                  <button class="btn-prod quero" data-nome="Blusa Cropped" data-preco="R$ 69,90" data-tipo="quero">Quero</button>
+                  <button class="btn-prod duvida" data-nome="Blusa Cropped" data-preco="R$ 69,90" data-tipo="duvida">Dúvida</button>
+                </div>
+              </div>
+
+              <div class="produto">
+                <img src="imagens/roupas/03.jpeg" alt="Peça 3">
+                <div class="nome">Calça Mom</div>
+                <div class="preco">R$ 139,90</div>
+                <div class="acoes">
+                  <button class="btn-prod quero" data-nome="Calça Mom" data-preco="R$ 139,90" data-tipo="quero">Quero</button>
+                  <button class="btn-prod duvida" data-nome="Calça Mom" data-preco="R$ 139,90" data-tipo="duvida">Dúvida</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -377,6 +429,24 @@ document.getElementById('hora').addEventListener('change', function(){
   } else {
     esconderAviso();
   }
+});
+
+// contatos para produtos (WhatsApp)
+document.querySelectorAll('.btn-prod').forEach(btn=>{
+  btn.addEventListener('click', function(){
+    const nome = this.dataset.nome;
+    const preco = this.dataset.preco;
+    const tipo = this.dataset.tipo; // 'quero' ou 'duvida'
+    const numero = '55219887976236';
+    let texto = '';
+    if(tipo === 'quero') {
+      texto = `Olá! Tenho interesse na peça "${nome}" (${preco}). Como faço para comprar?`;
+    } else {
+      texto = `Olá! Tenho uma dúvida sobre a peça "${nome}" (${preco}): `;
+    }
+    const url = `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+  });
 });
 
 // enviar agendamento

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Admin - Produtos</title>
+<style>
+body{font-family:Inter,Arial,Helvetica,sans-serif;background:#0b0b0d;color:#fff;padding:20px}
+.container{max-width:900px;margin:0 auto}
+.panel{background:rgba(255,255,255,0.02);padding:16px;border-radius:10px;border:1px solid rgba(255,255,255,0.04)}
+.row{display:flex;gap:8px;align-items:center}
+input,textarea{width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff}
+button{padding:8px 10px;border-radius:8px;border:0;cursor:pointer}
+.btn-primary{background:linear-gradient(90deg,#ff4f9a,#ff77b5);color:#fff}
+.list-item{border-bottom:1px dashed rgba(255,255,255,0.03);padding:8px 0}
+.small{font-size:13px;color:rgba(255,255,255,0.6)}
+.preview{width:80px;height:80px;object-fit:cover;border-radius:6px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" style="display:inline-block;margin-bottom:12px;color:#fff;text-decoration:none">← Voltar</a>
+  <h2>Editor de Produtos</h2>
+  <p class="small">Edite os produtos localmente. As alterações ficam em <strong>localStorage</strong>. Use "Download JSON" para obter o arquivo e substituir `produtos.json`.</p>
+  <div class="panel">
+    <!-- Autenticação -->
+    <div id="authArea">
+      <div id="setPass" style="display:none;margin-bottom:12px">
+        <h3 style="margin:0 0 8px 0">Definir senha de administrador</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="newPass" type="password" placeholder="Nova senha (min 6 caracteres)" />
+          <input id="confirmPass" type="password" placeholder="Confirmar senha" />
+          <button id="btnSetPass" class="btn-primary">Salvar senha</button>
+        </div>
+        <div id="setPassMsg" style="color:#ffb6d6;margin-top:8px;display:none"></div>
+      </div>
+
+      <div id="login" style="display:none;margin-bottom:12px">
+        <h3 style="margin:0 0 8px 0">Entrar no painel</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="passLogin" type="password" placeholder="Senha" />
+          <button id="btnLogin" class="btn-primary">Entrar</button>
+        </div>
+        <div id="loginMsg" style="color:#ffb6d6;margin-top:8px;display:none"></div>
+      </div>
+    </div>
+
+    <!-- Interface protegida -->
+    <div id="adminApp" style="display:none">
+      <div class="controls">
+        <button id="btnLoad" class="btn-primary">Carregar `produtos.json`</button>
+        <button id="btnNew">+ Novo</button>
+        <button id="btnSaveLocal">Salvar (localStorage)</button>
+        <button id="btnDownload">Download JSON</button>
+        <input id="fileIn" type="file" accept="application/json" style="display:none" />
+        <button id="btnImport">Importar JSON</button>
+        <button id="btnLogout" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px;border-radius:8px">Logout</button>
+      </div>
+
+      <div id="prodList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(async function(){
+  // helper: SHA-256 hash to avoid storing password plaintext
+  async function hashPassword(p){
+    const enc = new TextEncoder().encode(p);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+
+  const setPassDiv = document.getElementById('setPass');
+  const loginDiv = document.getElementById('login');
+  const adminApp = document.getElementById('adminApp');
+  const btnSetPass = document.getElementById('btnSetPass');
+  const btnLogin = document.getElementById('btnLogin');
+  const btnLogout = document.getElementById('btnLogout');
+  const setPassMsg = document.getElementById('setPassMsg');
+  const loginMsg = document.getElementById('loginMsg');
+
+  const storedHash = localStorage.getItem('admin_produtos_hash');
+
+  function showAdmin(){
+    adminApp.style.display = 'block';
+    setPassDiv.style.display = 'none';
+    loginDiv.style.display = 'none';
+    sessionStorage.setItem('admin_produtos_auth','1');
+    initAdmin();
+  }
+  function showLogin(){ adminApp.style.display='none'; loginDiv.style.display='block'; setPassDiv.style.display='none'; }
+  function showSetPass(){ adminApp.style.display='none'; setPassDiv.style.display='block'; loginDiv.style.display='none'; }
+
+  if(sessionStorage.getItem('admin_produtos_auth')==='1'){
+    showAdmin();
+  } else if(!storedHash){
+    showSetPass();
+  } else {
+    showLogin();
+  }
+
+  btnSetPass.addEventListener('click', async ()=>{
+    setPassMsg.style.display='none';
+    const p = document.getElementById('newPass').value;
+    const c = document.getElementById('confirmPass').value;
+    if(!p || p.length < 6){ setPassMsg.textContent='Senha muito curta (mín 6 caracteres)'; setPassMsg.style.display='block'; return; }
+    if(p !== c){ setPassMsg.textContent='Senhas não conferem'; setPassMsg.style.display='block'; return; }
+    const h = await hashPassword(p);
+    localStorage.setItem('admin_produtos_hash', h);
+    setPassMsg.textContent='Senha salva! Você já pode entrar no painel.'; setPassMsg.style.display='block';
+    showAdmin();
+  });
+
+  btnLogin.addEventListener('click', async ()=>{
+    loginMsg.style.display='none';
+    const p = document.getElementById('passLogin').value;
+    if(!p){ loginMsg.textContent='Preencha a senha'; loginMsg.style.display='block'; return; }
+    const h = await hashPassword(p);
+    if(h === localStorage.getItem('admin_produtos_hash')){ showAdmin(); }
+    else { loginMsg.textContent='Senha incorreta'; loginMsg.style.display='block'; }
+  });
+
+  btnLogout.addEventListener('click', ()=>{
+    sessionStorage.removeItem('admin_produtos_auth');
+    adminApp.style.display='none';
+    showLogin();
+  });
+
+  // --- admin init: original editor logic moved into function ---
+  function initAdmin(){
+    const prodListEl = document.getElementById('prodList');
+    let produtos = [];
+
+    function renderList(){
+      prodListEl.innerHTML = '';
+      produtos.forEach((p, i)=>{
+        const el = document.createElement('div'); el.className='list-item';
+        el.innerHTML = `
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="width:80px"><img src="${p.img || ''}" alt="" class="preview"/></div>
+            <div style="flex:1">
+              <input data-i="${i}" class="inp-nome" value="${(p.nome||'').replace(/"/g,'&quot;')}" placeholder="Nome" />
+              <div style="height:8px"></div>
+              <input data-i="${i}" class="inp-preco" value="${(p.preco||'').replace(/"/g,'&quot;')}" placeholder="Preço" />
+              <div style="height:8px"></div>
+              <input data-i="${i}" class="inp-img" value="${(p.img||'').replace(/"/g,'&quot;')}" placeholder="Caminho da imagem" />
+              <div style="height:8px"></div>
+              <textarea data-i="${i}" class="inp-desc" placeholder="Descrição">${(p.descricao||'').replace(/</g,'&lt;')}</textarea>
+            </div>
+            <div style="width:80px;text-align:right">
+              <button data-i="${i}" class="btn-remove">Remover</button>
+            </div>
+          </div>
+        `;
+        prodListEl.appendChild(el);
+      });
+      attachListHandlers();
+    }
+
+    function attachListHandlers(){
+      document.querySelectorAll('.inp-nome').forEach(inp=> inp.addEventListener('input', function(){ produtos[this.dataset.i].nome = this.value; }));
+      document.querySelectorAll('.inp-preco').forEach(inp=> inp.addEventListener('input', function(){ produtos[this.dataset.i].preco = this.value; }));
+      document.querySelectorAll('.inp-img').forEach(inp=> inp.addEventListener('input', function(){ produtos[this.dataset.i].img = this.value; renderList(); }));
+      document.querySelectorAll('.inp-desc').forEach(inp=> inp.addEventListener('input', function(){ produtos[this.dataset.i].descricao = this.value; }));
+      document.querySelectorAll('.btn-remove').forEach(btn=> btn.addEventListener('click', function(){ produtos.splice(Number(this.dataset.i),1); renderList(); }));
+    }
+
+    document.getElementById('btnNew').addEventListener('click', ()=>{ produtos.push({id: Date.now(), nome:'', preco:'', img:'', descricao:''}); renderList(); });
+
+    document.getElementById('btnLoad').addEventListener('click', ()=>{
+      fetch('produtos.json').then(r=>r.json()).then(data=>{ produtos = data; renderList(); }).catch(e=>alert('Erro ao carregar produtos.json'));
+    });
+
+    document.getElementById('btnSaveLocal').addEventListener('click', ()=>{
+      localStorage.setItem('produtos_admin', JSON.stringify(produtos));
+      alert('Salvo em localStorage (chave: produtos_admin)');
+    });
+
+    document.getElementById('btnDownload').addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(produtos, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'produtos.json'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    // importar por input file
+    const fileIn = document.getElementById('fileIn');
+    document.getElementById('btnImport').addEventListener('click', ()=> fileIn.click());
+    fileIn.addEventListener('change', function(){
+      const f = this.files[0]; if(!f) return; const reader = new FileReader();
+      reader.onload = e=>{ try{ produtos = JSON.parse(e.target.result); renderList(); } catch(err){ alert('Arquivo inválido') } }
+      reader.readAsText(f);
+    });
+
+    // carregar do localStorage (se houver)
+    (function(){
+      const saved = localStorage.getItem('produtos_admin');
+      if(saved){ try{ produtos = JSON.parse(saved); } catch(e){} }
+      renderList();
+    })();
+  }
+
+})();
+</script>
+</body>
+</html>

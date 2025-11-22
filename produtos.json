@@ -1,0 +1,11 @@
+[
+  {"id":1,"nome":"Vestido Floral","preco":"R$ 129,90","img":"imagens/roupas/01.jpeg","descricao":"Vestido leve com estampa floral."},
+  {"id":2,"nome":"Blusa Cropped","preco":"R$ 69,90","img":"imagens/roupas/02.jpeg","descricao":"Blusa curta, tecido leve."},
+  {"id":3,"nome":"Calça Mom","preco":"R$ 139,90","img":"imagens/roupas/03.jpeg","descricao":"Calça corte amplo, confortável."},
+  {"id":4,"nome":"Saia Midi","preco":"R$ 99,90","img":"imagens/roupas/04.jpeg","descricao":"Saia midi elegante para diferentes ocasiões."},
+  {"id":5,"nome":"Camisa Social","preco":"R$ 119,90","img":"imagens/outros/05.jpg","descricao":"Camisa de botão com caimento perfeito."},
+  {"id":6,"nome":"Vestido Preto","preco":"R$ 149,90","img":"imagens/roupas/05.jpeg","descricao":"Vestido preto clássico."},
+  {"id":7,"nome":"Top Rendado","preco":"R$ 59,90","img":"imagens/outros/01.jpg","descricao":"Top delicado com renda."},
+  {"id":8,"nome":"Jaqueta Jeans","preco":"R$ 199,90","img":"imagens/outros/02.jpg","descricao":"Jaqueta resistente, estilo atemporal."},
+  {"id":9,"nome":"Macacão","preco":"R$ 179,90","img":"imagens/outros/03.jpg","descricao":"Macacão confortável e moderno."}
+]

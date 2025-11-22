@@ -215,7 +215,7 @@ input, select{
       <a class="btn" href="#galeria">Galeria</a>
       <a class="btn" href="#precos">Preços</a>
       <a class="btn" href="#agendar">Agendar</a>
-      <a class="btn btn-ghost" href="admin_produtos.html"><i class="fa-solid fa-lock"></i> Painel</a>
+      <a id="adminLink" class="btn btn-ghost" href="admin_produtos.html" style="display:none"><i class="fa-solid fa-lock"></i> Painel</a>
     </nav>
   </header>
 
@@ -608,6 +608,18 @@ document.getElementById('btnEnviar').addEventListener('click', function(){
   alert('Agendamento enviado! Obrigada 😊');
   document.getElementById('nome').value=''; document.getElementById('telefone').value=''; document.getElementById('data').value=''; document.getElementById('hora').value='';
 });
+
+// mostrar link do painel apenas se houver sessão de admin ativa (protege visibilidade do botão)
+(function(){
+  try{
+    const adminLink = document.getElementById('adminLink');
+    if(sessionStorage.getItem('admin_produtos_auth') === '1'){
+      adminLink.style.display = 'inline-block';
+    } else {
+      adminLink.style.display = 'none';
+    }
+  }catch(e){ /* ignore */ }
+})();
 </script>
 </body>
 </html>

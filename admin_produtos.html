@@ -59,6 +59,12 @@ button{padding:8px 10px;border-radius:8px;border:0;cursor:pointer}
       </div>
 
       <div id="prodList"></div>
+      <div style="margin-top:12px;color:var(--muted);font-size:13px">
+        <strong>Redefinir senha:</strong> se quiser trocar a senha de administrador, clique em "Redefinir senha" abaixo — isso removerá a senha atual e você poderá definir uma nova ao acessar o painel.
+        <div style="margin-top:8px">
+          <button id="btnResetPass" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px;border-radius:8px">Redefinir senha</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -127,6 +133,18 @@ button{padding:8px 10px;border-radius:8px;border:0;cursor:pointer}
     adminApp.style.display='none';
     showLogin();
   });
+
+  // reset password button (remove stored hash and force set new password)
+  const btnResetPass = document.getElementById('btnResetPass');
+  if(btnResetPass){
+    btnResetPass.addEventListener('click', ()=>{
+      if(!confirm('Deseja realmente redefinir a senha de administrador? Isso removerá a senha atual.')) return;
+      localStorage.removeItem('admin_produtos_hash');
+      sessionStorage.removeItem('admin_produtos_auth');
+      alert('Senha removida. Você será direcionado para definir uma nova senha.');
+      showSetPass();
+    });
+  }
 
   // --- admin init: original editor logic moved into function ---
   function initAdmin(){

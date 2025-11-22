@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agendamentos - Luxe Nails</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body{margin:0;font-family:"Inter",Arial,sans-serif;background:#0b0b0d;color:#fff;padding:20px;}
+h2{margin-bottom:12px;}
+.table{width:100%;border-collapse:collapse;}
+.table th,.table td{padding:10px;border-bottom:1px dashed rgba(255,255,255,0.03);text-align:left;font-size:14px;}
+.panel{background:rgba(255,255,255,0.04);border-radius:14px;padding:18px;border:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(8px);}
+@media(max-width:768px){.table th,.table td{font-size:12px;padding:6px;}}
+</style>
+</head>
+<body>
+<div class="panel">
+<h2>Agendamentos salvos</h2>
+<table class="table" id="tblAgendamentos">
+<thead><tr><th>Nome</th><th>Telefone</th><th>Data</th><th>Hora</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<script>
+const lista = JSON.parse(localStorage.getItem('agendamentos')||'[]');
+const tbody = document.querySelector('#tblAgendamentos tbody');
+lista.forEach(a=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td>${a.nome}</td><td>${a.tel}</td><td>${a.data}</td><td>${a.hora}</td>`;
+  tbody.appendChild(tr);
+});
+</script>
+</body>
+</html>

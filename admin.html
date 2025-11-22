@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Painel Admin - Luxe Nails</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b0d;--accent:#ff4f9a}
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(180deg,#060607 0%, #0b0b0d 100%); color:#fff; font-family:Inter,Arial,sans-serif;
+}
+.card{
+  width:360px;padding:26px;border-radius:14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.7);
+  text-align:center;
+  margin-top:60px; /* espaço para botão voltar */
+}
+.logo{
+  width:56px;height:56px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),#ff77b5);
+  display:flex;align-items:center;justify-content:center;font-weight:800;
+  margin:0 auto 12px auto;
+}
+h2{margin:10px 0 2px 0}
+p{margin:0;color:rgba(255,255,255,0.6);font-size:13px}
+input{width:100%;padding:12px;margin-top:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#fff}
+.btn-primary{margin-top:16px;padding:12px;border-radius:10px;border:none;background:linear-gradient(90deg,#ff4f9a,#ff77b5);color:#fff;width:100%;font-weight:700;cursor:pointer}
+.note{font-size:12px;color:rgba(255,255,255,0.45);margin-top:8px}
+
+/* Botão voltar fixo no topo da tela */
+.btn-voltar {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  display:inline-block;
+  padding:10px 14px;
+  background: rgba(255,255,255,0.08);
+  border-radius:12px;
+  color:#fff;
+  text-decoration:none;
+  font-weight:600;
+  transition:0.25s;
+  z-index:1000;
+}
+.btn-voltar:hover {
+  background: rgba(255,79,154,0.28);
+  transform: translateY(-2px);
+}
+</style>
+</head>
+<body>
+
+<!-- BOTÃO VOLTAR FIXO -->
+<a href="index.html" class="btn-voltar">⬅ Voltar ao site</a>
+
+<div class="card">
+  <div style="display:flex;gap:12px;align-items:center;justify-content:center;margin-bottom:12px">
+    <div class="logo">LN</div>
+    <div>
+      <h2>Painel Administrativo</h2>
+      <p>Área restrita — gerencie agendamentos</p>
+    </div>
+  </div>
+
+  <label style="display:block;margin-top:14px">Usuário</label>
+  <input id="usuario" placeholder="Usuário">
+
+  <label style="display:block;margin-top:8px">Senha</label>
+  <input id="senha" type="password" placeholder="Senha">
+
+  <button class="btn-primary" onclick="entrar()">Entrar</button>
+
+  <div class="note">Usuário padrão: <strong>admin</strong> / Senha: <strong>1234</strong>. Altere no arquivo login.html após salvar.</div>
+</div>
+
+<script>
+const usuarioCorreto = "admin";
+const senhaCorreta = "1234";
+
+function entrar(){
+  const u = document.getElementById('usuario').value;
+  const s = document.getElementById('senha').value;
+  if(u===usuarioCorreto && s===senhaCorreta){
+    localStorage.setItem('logado','sim');
+    window.location.href = 'admin.html';
+  } else {
+    alert('Usuário ou senha incorretos');
+  }
+}
+</script>
+
+</body>
+</html>
